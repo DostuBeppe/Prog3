@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.NewMassage">
+   <children>
+      <Label layoutX="14.0" layoutY="24.0" text="From: " />
+      <TextField layoutX="88.0" layoutY="19.0" prefHeight="31.0" prefWidth="486.0" AnchorPane.bottomAnchor="350.0" AnchorPane.leftAnchor="88.0" AnchorPane.rightAnchor="26.0" AnchorPane.topAnchor="19.0" />
+      <Label layoutX="14.0" layoutY="59.0" text="To: " AnchorPane.topAnchor="61.0" />
+      <TextField layoutX="88.0" layoutY="54.0" prefHeight="31.0" prefWidth="486.0" AnchorPane.topAnchor="55.0" />
+      <Label layoutX="11.0" layoutY="101.0" text="Subject: " AnchorPane.topAnchor="96.0" />
+      <TextField layoutX="88.0" layoutY="96.0" prefHeight="31.0" prefWidth="486.0" AnchorPane.topAnchor="90.0" />
+      <TextArea layoutX="14.0" layoutY="151.0" prefHeight="200.0" prefWidth="559.0" />
+      <Button layoutX="442.0" layoutY="355.0" mnemonicParsing="false" text="Send" AnchorPane.leftAnchor="520.0" />
+   </children>
+</AnchorPane>
