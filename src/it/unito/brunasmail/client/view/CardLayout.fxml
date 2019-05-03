@@ -18,7 +18,7 @@
             <Label layoutX="472.0" layoutY="14.0" text="Date" />
             <ImageView fitHeight="27.0" fitWidth="31.0" layoutX="550.0" layoutY="32.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../delete.png" />
+                  <Image url="@../../../../../../delete.png" />
                </image>
             </ImageView>
          </children>
