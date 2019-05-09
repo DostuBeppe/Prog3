@@ -1,24 +1,28 @@
 package it.unito.brunasmail.client.model;
 
+import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.beans.property.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class Mail {
     private final IntegerProperty id;
     private final StringProperty sender;
     private final StringProperty subject;
-    private final List<String> receivers;
+    private List<String> receivers;
     private final ObjectProperty<LocalDateTime> date;
     private final StringProperty message;
-    private final Boolean viewed;
+    private Boolean viewed;
 
-    public Mail(Integer id, String sender, String subject, List<String> receivers, String date, String message, Boolean viewed) {
+    public Mail(Integer id, String sender, String subject, String receivers, String date, String message, Boolean viewed) {
         this.id = new SimpleIntegerProperty(id);
         this.sender = new SimpleStringProperty(sender);
         this.subject = new SimpleStringProperty(subject);
-        this.receivers = receivers;
+        setReceivers(receivers);
         this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.of(1999, 2, 21,0,0,0,0));
         this.message = new SimpleStringProperty(message);
         this.viewed = viewed;
@@ -62,6 +66,31 @@ public class Mail {
 
     public List<String> getReceivers() {
         return receivers;
+    }
+
+    public void removeFromReceivers(String mail){
+        ArrayList<String> tmp = new ArrayList<>(receivers);
+        tmp.remove(mail);
+        receivers = tmp;
+    }
+    public void setReceivers(String r) {
+        String[] array = r.split(";");
+        receivers = Arrays.asList(array);
+
+    }
+    public StringProperty receiversStringProperty() {
+        if(receivers == null){
+            return new SimpleStringProperty("");
+        }
+        StringBuilder str = new StringBuilder();
+        for(String s: receivers){
+            str.append(s).append("; ");
+        }
+        return new SimpleStringProperty(str.toString());
+    }
+
+    public String getReceiversString(){
+        return receiversStringProperty().get();
     }
 
     public LocalDateTime getDate() {
