@@ -26,11 +26,11 @@ public class MainApp extends Application {
     private String userMail = "stefanococomazzi@brunasmail.com";
 
     public MainApp(){
-        inbox.add(new Mail(0,"bruno@bruni.it","Importante","dest1@brunasmail.it; dost111@brunasmail.it",null,"Ciao",false));
-        inbox.add(new Mail(0,"bruno@bruni.it","Importantissima","singolo@mail.it",null,"Ciaoooooo",false));
-        inbox.add(new Mail(0,"bruno@bruni.it","Importantissima","stefanococomazzi@brunasmail.com; ahaia.io; hgihs; ahishisahsaihsai; blablabla.it",null,"Ciaoooooo",false));
-        outbox.add(new Mail(0,"brno@bruni.it","Importantiima","viojisja;",null,"Ciaoooiiiiiiiooo",false));
-        outbox.add(new Mail(0,"bno@bruni.it","Importassima","hsidshduish;",null,"YEET",false));
+        inbox.add(new Mail(0,"bruno@bruni.it","Importante","dest1@brunasmail.it; dost111@brunasmail.it",179250540110L,"Ciao",false));
+        inbox.add(new Mail(0,"bruno@bruni.it","Importantissima","singolo@mail.it",147925042110L,"Ciaoooooo",false));
+        inbox.add(new Mail(0,"bruno@bruni.it","Importantissima","stefanococomazzi@brunasmail.com; ahaia.io; hgihs; ahishisahsaihsai; blablabla.it",247925054010L,"Ciaoooooo",false));
+        outbox.add(new Mail(0,"brno@bruni.it","Importantiima","viojisja@jsjaks.i;;;",147925540210L,"Ciaoooiiiiiiiooo",false));
+        outbox.add(new Mail(0,"bno@bruni.it","Importassima","hsidshduish@ui.it; jsiasj; ais@gj.io",147935540110L,"YEET",false));
     }
 
     public ObservableList<Mail> getInbox(){
