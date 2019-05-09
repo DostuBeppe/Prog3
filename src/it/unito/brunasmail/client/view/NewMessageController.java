@@ -1,5 +1,6 @@
 package it.unito.brunasmail.client.view;
 
+import it.unito.brunasmail.client.MainApp;
 import it.unito.brunasmail.client.model.Mail;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -7,8 +8,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-
-import java.util.ArrayList;
 
 public class NewMessageController {
     @FXML
@@ -34,7 +33,7 @@ public class NewMessageController {
             subjectField.setText(this.mail.getSubject());
             messageBodyArea.setText(this.mail.getMessage());
         } else {
-            this.mail = new Mail(-1,"","",null,"","",false);
+            this.mail = new Mail(-1,"","",null,0L,"",false);
             receiversField.setText(this.mail.getReceiversString());
             subjectField.setText(this.mail.getSubject());
             messageBodyArea.setText(this.mail.getMessage());
@@ -46,10 +45,10 @@ public class NewMessageController {
 
     @FXML
     private void handleOk(){
-        if(isInputValid()){
-            mail.setReceivers(receiversField.getText());
-            mail.setSubject(subjectField.getText());
-            mail.setMessage(messageBodyArea.getText());
+        mail.setReceivers(receiversField.getText());
+        mail.setSubject(subjectField.getText());
+        mail.setMessage(messageBodyArea.getText());
+        if(isInputValid(mail)){
             okClicked = true;
             dialogStage.close();
         }
@@ -60,10 +59,13 @@ public class NewMessageController {
         dialogStage.close();
     }
 
-    private boolean isInputValid(){
+    private boolean isInputValid(Mail mail){
         String errorMessage = "";
         if(receiversField.getText()==null||receiversField.getText().length()==0){
             errorMessage += "Missing Receivers\n";
+        }
+        if(mail.getReceiversString().length()==0){
+            errorMessage += "Wrong Email Format\n";
         }
         if(subjectField.getText()==null||subjectField.getText().length()==0){
             errorMessage += "Missing Subject\n";

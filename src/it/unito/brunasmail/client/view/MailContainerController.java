@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.util.Callback;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -26,13 +28,13 @@ public class MailContainerController {
     @FXML
     private TableColumn<Mail, String> inSubjectColumn;
     @FXML
-    private TableColumn<Mail, String> inDateColumn;
+    private TableColumn<Mail, LocalDateTime> inDateColumn;
     @FXML
     private TableColumn<Mail, String> outReceiverColumn;
     @FXML
     private TableColumn<Mail, String> outSubjectColumn;
     @FXML
-    private TableColumn<Mail, String> outDateColumn;
+    private TableColumn<Mail, LocalDateTime> outDateColumn;
     @FXML
     private Label subjectLabel;
     @FXML
@@ -59,14 +61,29 @@ public class MailContainerController {
 
     public MailContainerController() { }
 
+    public void setDate(TableColumn<Mail, LocalDateTime> d){
+        d.setCellValueFactory(cellData->cellData.getValue().dateProperty());
+        d.setCellFactory(col -> new TableCell<Mail, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+
+                super.updateItem(item, empty);
+                if (empty)
+                    setText(null);
+                else
+                    setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm")));
+            }
+        });
+    }
     @FXML
     private void initialize(){
         inSenderColumn.setCellValueFactory(cellData->cellData.getValue().senderProperty());
         inSubjectColumn.setCellValueFactory(cellData->cellData.getValue().subjectProperty());
-        //inDateColumn.setCellValueFactory(cellData->cellData.getValue().getDate());
+        setDate(inDateColumn);
         outReceiverColumn.setCellValueFactory(cellData->cellData.getValue().receiversStringProperty());
         outSubjectColumn.setCellValueFactory(cellData->cellData.getValue().subjectProperty());
-        //inDateColumn.setCellValueFactory(cellData->cellData.getValue().getDate());
+        setDate(outDateColumn);
+
 
         showMailDetails(null);
         inTable.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> showMailDetails(newValue)));
@@ -80,7 +97,7 @@ public class MailContainerController {
                         mainApp.getUserMail(),
                         "[FWD] " + selectedMail.getSubject(),
                         "",
-                        "",
+                        0L,
                         selectedMail.getMessage() + "\n---------------------\nForwarded from " + selectedMail.getSender(),
                         false
                 ),
@@ -95,7 +112,7 @@ public class MailContainerController {
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getSender(),
-                            "",
+                            0L,
                             "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
                             false
                     ),
@@ -106,7 +123,7 @@ public class MailContainerController {
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getReceiversString(),
-                            "",
+                            0L,
                             "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
                             false
                     ),
@@ -121,8 +138,8 @@ public class MailContainerController {
                     new Mail(-1,
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
-                            selectedMail.getSender() + "; " + selectedMail.getReceivers(),
-                            "",
+                            selectedMail.getSender() + "; " + selectedMail.getReceiversString(),
+                            0,
                             "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
                             false
                     ),
@@ -133,7 +150,7 @@ public class MailContainerController {
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getReceiversString(),
-                            "",
+                            0L,
                             "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
                             false
                     ),
@@ -154,7 +171,7 @@ public class MailContainerController {
             this.selectedMail = mail;
             subjectLabel.setText(mail.getSubject());
             senderLabel.setText("from: " + mail.getSender());
-            dateLabel.setText("6/9/1969");
+            dateLabel.setText(mail.getFormattedDate());
             receiversLabel.setText("to: " + mail.getReceiversString());
             bodyTextArea.setText(mail.getMessage());
             buttonDelete.setDisable(false);
