@@ -17,13 +17,12 @@ public class RootLayoutController {
     @FXML
     private void handleNew(){
         mainApp.showSendMailDialog(
-                new Mail(-1,
+                new Mail(
                         mainApp.getUserMail(),
                         "",
                         null,
                         0L,
-                        "",
-                        false
+                        ""
                 ),
                 "Send New Email");
     }

@@ -33,7 +33,7 @@ public class NewMessageController {
             subjectField.setText(this.mail.getSubject());
             messageBodyArea.setText(this.mail.getMessage());
         } else {
-            this.mail = new Mail(-1,"","",null,0L,"",false);
+            this.mail = new Mail("","",null,0L,"");
             receiversField.setText(this.mail.getReceiversString());
             subjectField.setText(this.mail.getSubject());
             messageBodyArea.setText(this.mail.getMessage());

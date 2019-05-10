@@ -2,6 +2,8 @@ package it.unito.brunasmail.client.model;
 
 import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -12,34 +14,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Mail implements Serializable {
-    private final IntegerProperty id;
-    private final StringProperty sender;
-    private final StringProperty subject;
-    private List<String> receivers;
-    private final ObjectProperty<LocalDateTime> date;
-    private final StringProperty message;
-    private Boolean viewed;
+    private transient final StringProperty sender;
+    private transient final StringProperty subject;
+    private transient final ListProperty<String> receivers;
+    private transient final ObjectProperty<LocalDateTime> date;
+    private transient final StringProperty message;
+    // private Boolean viewed;
 
-    public Mail(Integer id, String sender, String subject, String receivers, long timestamp, String message, Boolean viewed) {
-        this.id = new SimpleIntegerProperty(id);
+    public Mail(String sender, String subject, String receivers, long timestamp, String message) {
         this.sender = new SimpleStringProperty(sender);
         this.subject = new SimpleStringProperty(subject);
-        if(receivers!=null) setReceivers(receivers);
+        this.receivers= new SimpleListProperty<>();
+        if (receivers != null) setReceivers(receivers);
         this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), TimeZone.getDefault().toZoneId()));
         this.message = new SimpleStringProperty(message);
-        this.viewed = viewed;
-    }
-
-    public int getId() {
-        return id.get();
-    }
-
-    public IntegerProperty idProperty() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id.set(id);
+        //this.viewed = viewed;
     }
 
     public String getSender() {
@@ -70,11 +59,12 @@ public class Mail implements Serializable {
         return receivers;
     }
 
-    public void removeFromReceivers(String mail){
+    public void removeFromReceivers(String mail) {
         ArrayList<String> tmp = new ArrayList<>(receivers);
         tmp.remove(mail);
-        receivers = tmp;
+        receivers.set(FXCollections.observableArrayList(tmp));
     }
+
     public void setReceivers(String r) {
         ArrayList<String> list = new ArrayList<>();
         Matcher m = Pattern.compile("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+").matcher(r);
@@ -82,21 +72,22 @@ public class Mail implements Serializable {
             list.add(m.group());
         }
         //String[] array = r.split("\\\\s*;\\\\s*",-1);
-        receivers = list;
+        receivers.set(FXCollections.observableArrayList(list));
     }
+
     public StringProperty receiversStringProperty() {
-        if(receivers == null){
+        if (receivers == null) {
             return new SimpleStringProperty("");
         }
         StringBuilder str = new StringBuilder();
-        for(String s: receivers){
+        for (String s : receivers) {
             System.out.println("Dest: " + s);
             str.append(s).append("; ");
         }
         return new SimpleStringProperty(str.toString());
     }
 
-    public String getReceiversString(){
+    public String getReceiversString() {
         return receiversStringProperty().get();
     }
 
@@ -109,9 +100,10 @@ public class Mail implements Serializable {
         return date;
     }
 
-    public String getFormattedDate(){
+    public String getFormattedDate() {
         return date.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm"));
     }
+
     public void setDate(LocalDateTime date) {
         this.date.set(date);
     }
@@ -128,9 +120,9 @@ public class Mail implements Serializable {
         this.message.set(message);
     }
 
-    public Boolean getViewed() {
+    /*public Boolean getViewed() {
         return viewed;
-    }
+    }*/
 
 
 }
