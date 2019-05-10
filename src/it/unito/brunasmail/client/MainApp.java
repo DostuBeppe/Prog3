@@ -19,7 +19,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class MainApp extends Application {
     private Stage primaryStage;
@@ -30,19 +33,25 @@ public class MainApp extends Application {
 
     private String userMail = "stefanococomazzi@brunasmail.com";
 
-    public MainApp(){
-        inbox.add(new Mail(0,"bruno@bruni.it","Importante","dest1@brunasmail.it; dost111@brunasmail.it",179250540110L,"Ciao",false));
-        inbox.add(new Mail(0,"bruno@bruni.it","Importantissima","singolo@mail.it",147925042110L,"Ciaoooooo",false));
-        inbox.add(new Mail(0,"bruno@bruni.it","Importantissima","stefanococomazzi@brunasmail.com; ahaia.io; hgihs; ahishisahsaihsai; blablabla.it",247925054010L,"Ciaoooooo",false));
-        outbox.add(new Mail(0,"brno@bruni.it","Importantiima","viojisja@jsjaks.i;;;",147925540210L,"Ciaoooiiiiiiiooo",false));
-        outbox.add(new Mail(0,"bno@bruni.it","Importassima","hsidshduish@ui.it; jsiasj; ais@gj.io",147935540110L,"YEET",false));
+    public MainApp() {
+        inbox.add(new Mail(0, "bruno@bruni.it", "Importante", "dest1@brunasmail.it; dost111@brunasmail.it", 179250540110L, "Ciao", false));
+        inbox.add(new Mail(0, "bruno@bruni.it", "Importantissima", "singolo@mail.it", 147925042110L, "Ciaoooooo", false));
+        inbox.add(new Mail(0, "bruno@bruni.it", "Importantissima", "stefanococomazzi@brunasmail.com; ahaia.io; hgihs; ahishisahsaihsai; blablabla.it", 247925054010L, "Ciaoooooo", false));
+        outbox.add(new Mail(0, "brno@bruni.it", "Importantiima", "viojisja@jsjaks.i;;;", 147925540210L, "Ciaoooiiiiiiiooo", false));
+        outbox.add(new Mail(0, "bno@bruni.it", "Importassima", "hsidshduish@ui.it; jsiasj; ais@gj.io", 147935540110L, "YEET", false));
     }
 
-    public ObservableList<Mail> getInbox(){
+    public ObservableList<Mail> getInbox() {
         return inbox;
     }
-    public ObservableList<Mail> getOutbox(){ return outbox; }
-    public String getUserMail() { return userMail; }
+
+    public ObservableList<Mail> getOutbox() {
+        return outbox;
+    }
+
+    public String getUserMail() {
+        return userMail;
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -50,6 +59,7 @@ public class MainApp extends Application {
         this.primaryStage.setTitle("Brunas Mail");
         initRootLayout();
         showMailContainer();
+        new Thread(this::connectToServer).start();
     }
 
 
@@ -95,11 +105,11 @@ public class MainApp extends Application {
         }
     }
 
-    public boolean showSendMailDialog(Mail mail, String title){
-        try{
+    public boolean showSendMailDialog(Mail mail, String title) {
+        try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/NewMassage.fxml"));
-            AnchorPane page = (AnchorPane)loader.load();
+            AnchorPane page = (AnchorPane) loader.load();
 
             Stage dialogStage = new Stage();
             dialogStage.setTitle(title);
@@ -121,8 +131,50 @@ public class MainApp extends Application {
         }
     }
 
+    public void connectToServer() {
+
+        try {
+            Socket s = new Socket("192.168.137.1", 8189);
+
+            System.out.println("Ho aperto il socket verso il server");
+
+            try {
+                InputStream inStream = s.getInputStream();
+                Scanner in = new Scanner(inStream);
+                OutputStream outStream = s.getOutputStream();
+                PrintWriter out = new PrintWriter(outStream, true /* autoFlush */);
+                Scanner stin = new Scanner(System.in);
+
+                System.out.println("Sto per ricevere dati dal socket server!");
+
+                String line = in.nextLine(); // attenzione: se il server non scrive nulla questo resta in attesa...
+                System.out.println(line);
+
+                boolean done = false;
+                while (!done) /* && in.hasNextLine()) */ {
+
+                    String lineout = stin.nextLine();
+                    out.println(lineout);
+
+                    line = in.nextLine();
+                    System.out.println(line);
+                    if (lineout.equals("BYE"))
+                        done = true;
+                }
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    
+
     /**
      * Returns the main stage.
+     *
      * @return
      */
     public Stage getPrimaryStage() {
