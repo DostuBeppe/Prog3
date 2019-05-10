@@ -16,6 +16,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class MainApp extends Application {
     private Stage primaryStage;
@@ -47,6 +51,7 @@ public class MainApp extends Application {
         initRootLayout();
         showMailContainer();
     }
+
 
     /**
      * Initializes the root layout.
