@@ -59,10 +59,11 @@ public class MailContainerController {
     private Mail selectedMail;
 
 
-    public MailContainerController() { }
+    public MailContainerController() {
+    }
 
-    public void setDate(TableColumn<Mail, LocalDateTime> d){
-        d.setCellValueFactory(cellData->cellData.getValue().dateProperty());
+    public void setDate(TableColumn<Mail, LocalDateTime> d) {
+        d.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
         d.setCellFactory(col -> new TableCell<Mail, LocalDateTime>() {
             @Override
             protected void updateItem(LocalDateTime item, boolean empty) {
@@ -75,13 +76,14 @@ public class MailContainerController {
             }
         });
     }
+
     @FXML
-    private void initialize(){
-        inSenderColumn.setCellValueFactory(cellData->cellData.getValue().senderProperty());
-        inSubjectColumn.setCellValueFactory(cellData->cellData.getValue().subjectProperty());
+    private void initialize() {
+        inSenderColumn.setCellValueFactory(cellData -> cellData.getValue().senderProperty());
+        inSubjectColumn.setCellValueFactory(cellData -> cellData.getValue().subjectProperty());
         setDate(inDateColumn);
-        outReceiverColumn.setCellValueFactory(cellData->cellData.getValue().receiversStringProperty());
-        outSubjectColumn.setCellValueFactory(cellData->cellData.getValue().subjectProperty());
+        outReceiverColumn.setCellValueFactory(cellData -> cellData.getValue().receiversStringProperty());
+        outSubjectColumn.setCellValueFactory(cellData -> cellData.getValue().subjectProperty());
         setDate(outDateColumn);
 
 
@@ -91,68 +93,63 @@ public class MailContainerController {
     }
 
     @FXML
-    private void handleForward(){
+    private void handleForward() {
         mainApp.showSendMailDialog(
-                new Mail(-1,
+                new Mail(
                         mainApp.getUserMail(),
                         "[FWD] " + selectedMail.getSubject(),
                         "",
                         0L,
-                        selectedMail.getMessage() + "\n---------------------\nForwarded from " + selectedMail.getSender(),
-                        false
+                        selectedMail.getMessage() + "\n---------------------\nForwarded from " + selectedMail.getSender()
                 ),
                 "Forward Email");
     }
 
     @FXML
-    private void handleReply(){
-        if(!selectedMail.getSender().equals(mainApp.getUserMail())){
+    private void handleReply() {
+        if (!selectedMail.getSender().equals(mainApp.getUserMail())) {
             mainApp.showSendMailDialog(
-                    new Mail(-1,
-                            mainApp.getUserMail(),
+                    new Mail(mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getSender(),
                             0L,
-                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
-                            false
+                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage()
                     ),
                     "Reply Email");
         } else {
             mainApp.showSendMailDialog(
-                    new Mail(-1,
+                    new Mail(
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getReceiversString(),
                             0L,
-                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
-                            false
+                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage()
                     ),
                     "Reply Email");
         }
     }
+
     @FXML
-    private void handleReplyAll(){
-        if(!selectedMail.getSender().equals(mainApp.getUserMail())){
+    private void handleReplyAll() {
+        if (!selectedMail.getSender().equals(mainApp.getUserMail())) {
             selectedMail.removeFromReceivers(mainApp.getUserMail());
             mainApp.showSendMailDialog(
-                    new Mail(-1,
+                    new Mail(
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getSender() + "; " + selectedMail.getReceiversString(),
                             0,
-                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
-                            false
+                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage()
                     ),
                     "Reply Email");
         } else {
             mainApp.showSendMailDialog(
-                    new Mail(-1,
+                    new Mail(
                             mainApp.getUserMail(),
                             "[RE] " + selectedMail.getSubject(),
                             selectedMail.getReceiversString(),
                             0L,
-                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage(),
-                            false
+                            "\n\n-----------------------\n" + selectedMail.getSender() + ":\n\n" + selectedMail.getMessage()
                     ),
                     "Reply Email");
         }
@@ -166,8 +163,8 @@ public class MailContainerController {
         outTable.setItems(mainApp.getOutbox());
     }
 
-    private void showMailDetails(Mail mail){
-        if(mail!=null) {
+    private void showMailDetails(Mail mail) {
+        if (mail != null) {
             this.selectedMail = mail;
             subjectLabel.setText(mail.getSubject());
             senderLabel.setText("from: " + mail.getSender());
@@ -186,8 +183,6 @@ public class MailContainerController {
             bodyTextArea.setText("Seleziona Un Messaggio");
         }
     }
-
-
 
 
 }

@@ -1,27 +1,26 @@
 package it.unito.brunasmail.client;
 
 import it.unito.brunasmail.client.model.Mail;
+import it.unito.brunasmail.client.view.LoginController;
 import it.unito.brunasmail.client.view.MailContainerController;
 import it.unito.brunasmail.client.view.NewMessageController;
 import it.unito.brunasmail.client.view.RootLayoutController;
 import javafx.application.Application;
-import javafx.beans.property.StringProperty;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
+import javafx.stage.WindowEvent;
+import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class MainApp extends Application {
@@ -31,14 +30,13 @@ public class MainApp extends Application {
     private ObservableList<Mail> inbox = FXCollections.observableArrayList();
     private ObservableList<Mail> outbox = FXCollections.observableArrayList();
 
-    private String userMail = "stefanococomazzi@brunasmail.com";
+    private String userMail;
 
     public MainApp() {
-        inbox.add(new Mail(0, "bruno@bruni.it", "Importante", "dest1@brunasmail.it; dost111@brunasmail.it", 179250540110L, "Ciao", false));
-        inbox.add(new Mail(0, "bruno@bruni.it", "Importantissima", "singolo@mail.it", 147925042110L, "Ciaoooooo", false));
-        inbox.add(new Mail(0, "bruno@bruni.it", "Importantissima", "stefanococomazzi@brunasmail.com; ahaia.io; hgihs; ahishisahsaihsai; blablabla.it", 247925054010L, "Ciaoooooo", false));
-        outbox.add(new Mail(0, "brno@bruni.it", "Importantiima", "viojisja@jsjaks.i;;;", 147925540210L, "Ciaoooiiiiiiiooo", false));
-        outbox.add(new Mail(0, "bno@bruni.it", "Importassima", "hsidshduish@ui.it; jsiasj; ais@gj.io", 147935540110L, "YEET", false));
+    }
+
+    public void setUserMail(String userMail) {
+        this.userMail = userMail;
     }
 
     public ObservableList<Mail> getInbox() {
@@ -58,7 +56,9 @@ public class MainApp extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Brunas Mail");
         initRootLayout();
+
         showMailContainer();
+        showLoginDialog();
         new Thread(this::connectToServer).start();
     }
 
@@ -169,8 +169,69 @@ public class MainApp extends Application {
         }
     }
 
+    public void requestMail() {
+        try {
+            Socket s = new Socket("192.168.137.1", 8189);
 
-    
+            System.out.println("Ho aperto il socket verso il server");
+
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+                System.out.println("Sto per ricevere dati dal socket server!");
+                out.writeObject("out");
+                out.writeObject(userMail);
+                List<Mail> res = (ArrayList<Mail>) in.readObject();
+                if (res != null) {
+                    for (Mail l : res) {
+                        System.out.println(l.getSubject());
+                    }
+                }
+                in.close();
+                out.close();
+
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showLoginDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("view/Login.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Login");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+            dialogStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent event) {
+                    Platform.exit();
+                }
+            });
+
+            LoginController loginController = loader.getController();
+            loginController.setMainApp(this);
+
+
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 
     /**
      * Returns the main stage.
