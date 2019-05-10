@@ -1,20 +1,12 @@
-package it.unito.brunasmail.client.view;
+package it.unito.brunasmail.view;
 
-import it.unito.brunasmail.client.MainApp;
-import it.unito.brunasmail.client.model.Mail;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import it.unito.brunasmail.MainApp;
+import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.util.Callback;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Set;
 
 public class MailContainerController {
     @FXML

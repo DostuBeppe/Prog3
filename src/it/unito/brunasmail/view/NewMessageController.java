@@ -1,7 +1,6 @@
-package it.unito.brunasmail.client.view;
+package it.unito.brunasmail.view;
 
-import it.unito.brunasmail.client.MainApp;
-import it.unito.brunasmail.client.model.Mail;
+import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;

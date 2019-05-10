@@ -1,10 +1,10 @@
-package it.unito.brunasmail.client;
+package it.unito.brunasmail;
 
-import it.unito.brunasmail.client.model.Mail;
-import it.unito.brunasmail.client.view.LoginController;
-import it.unito.brunasmail.client.view.MailContainerController;
-import it.unito.brunasmail.client.view.NewMessageController;
-import it.unito.brunasmail.client.view.RootLayoutController;
+import it.unito.brunasmail.model.Mail;
+import it.unito.brunasmail.view.LoginController;
+import it.unito.brunasmail.view.MailContainerController;
+import it.unito.brunasmail.view.NewMessageController;
+import it.unito.brunasmail.view.RootLayoutController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -184,12 +184,12 @@ public class MainApp extends Application {
                 List<Mail> res = (ArrayList<Mail>) in.readObject();
                 if (res != null) {
                     for (Mail l : res) {
-                        System.out.println(l.getSubject());
+                        System.out.println(l);
                     }
                 }
                 in.close();
                 out.close();
-
+                inbox.addAll(res);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {

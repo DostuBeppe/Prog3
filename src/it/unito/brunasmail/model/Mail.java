@@ -1,11 +1,15 @@
-package it.unito.brunasmail.client.model;
+package it.unito.brunasmail.model;
 
 import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,12 +17,13 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Mail implements Serializable {
+public class Mail implements Serializable, Cloneable {
     private transient final StringProperty sender;
     private transient final StringProperty subject;
     private transient final ListProperty<String> receivers;
     private transient final ObjectProperty<LocalDateTime> date;
     private transient final StringProperty message;
+
     // private Boolean viewed;
 
     public Mail(String sender, String subject, String receivers, long timestamp, String message) {
@@ -124,5 +129,22 @@ public class Mail implements Serializable {
         return viewed;
     }*/
 
+    private void writeObject(ObjectOutputStream s)throws IOException {
+        long millis = getDate().atZone(TimeZone.getDefault().toZoneId()).toInstant().toEpochMilli();
+        s.defaultWriteObject();
+        s.writeUTF(getSender());
+        s.writeUTF(getSubject());
+        s.writeUTF(getReceiversString());
+        s.writeLong(millis);
+        s.writeUTF(getMessage());
+    }
+
+    private void readObject(ObjectInputStream s)throws IOException, ClassNotFoundException{
+        setSender(s.readUTF());
+        setSubject(s.readUTF());
+        setReceivers(s.readUTF());
+        setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(s.readLong()),TimeZone.getDefault().toZoneId()));
+        setMessage(s.readUTF());
+    }
 
 }
