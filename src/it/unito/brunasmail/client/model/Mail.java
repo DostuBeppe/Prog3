@@ -3,13 +3,15 @@ package it.unito.brunasmail.client.model;
 import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.beans.property.*;
 
+import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class Mail {
+public class Mail implements Serializable {
     private final IntegerProperty id;
     private final StringProperty sender;
     private final StringProperty subject;
@@ -18,12 +20,12 @@ public class Mail {
     private final StringProperty message;
     private Boolean viewed;
 
-    public Mail(Integer id, String sender, String subject, String receivers, String date, String message, Boolean viewed) {
+    public Mail(Integer id, String sender, String subject, String receivers, long timestamp, String message, Boolean viewed) {
         this.id = new SimpleIntegerProperty(id);
         this.sender = new SimpleStringProperty(sender);
         this.subject = new SimpleStringProperty(subject);
-        setReceivers(receivers);
-        this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.of(1999, 2, 21,0,0,0,0));
+        if(receivers!=null) setReceivers(receivers);
+        this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), TimeZone.getDefault().toZoneId()));
         this.message = new SimpleStringProperty(message);
         this.viewed = viewed;
     }
@@ -74,9 +76,13 @@ public class Mail {
         receivers = tmp;
     }
     public void setReceivers(String r) {
-        String[] array = r.split(";");
-        receivers = Arrays.asList(array);
-
+        ArrayList<String> list = new ArrayList<>();
+        Matcher m = Pattern.compile("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+").matcher(r);
+        while (m.find()) {
+            list.add(m.group());
+        }
+        //String[] array = r.split("\\\\s*;\\\\s*",-1);
+        receivers = list;
     }
     public StringProperty receiversStringProperty() {
         if(receivers == null){
@@ -84,6 +90,7 @@ public class Mail {
         }
         StringBuilder str = new StringBuilder();
         for(String s: receivers){
+            System.out.println("Dest: " + s);
             str.append(s).append("; ");
         }
         return new SimpleStringProperty(str.toString());
@@ -93,6 +100,7 @@ public class Mail {
         return receiversStringProperty().get();
     }
 
+
     public LocalDateTime getDate() {
         return date.get();
     }
@@ -101,6 +109,9 @@ public class Mail {
         return date;
     }
 
+    public String getFormattedDate(){
+        return date.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm"));
+    }
     public void setDate(LocalDateTime date) {
         this.date.set(date);
     }
