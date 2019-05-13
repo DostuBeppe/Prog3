@@ -1,7 +1,6 @@
-package it.unito.brunasmail.client.view;
+package it.unito.brunasmail.view;
 
-import it.unito.brunasmail.client.MainApp;
-import it.unito.brunasmail.client.model.Mail;
+import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
@@ -28,12 +27,13 @@ public class NewMessageController {
 
     public void setMail(Mail mail){
         this.mail = mail;
+
         if(mail!=null){
             receiversField.setText(this.mail.getReceiversString());
             subjectField.setText(this.mail.getSubject());
             messageBodyArea.setText(this.mail.getMessage());
         } else {
-            this.mail = new Mail(-1,"","",null,0L,"",false);
+            this.mail = new Mail("","",null,0L,"");
             receiversField.setText(this.mail.getReceiversString());
             subjectField.setText(this.mail.getSubject());
             messageBodyArea.setText(this.mail.getMessage());

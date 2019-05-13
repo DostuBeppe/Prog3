@@ -1,7 +1,7 @@
-package it.unito.brunasmail.client.view;
+package it.unito.brunasmail.view;
 
-import it.unito.brunasmail.client.MainApp;
-import it.unito.brunasmail.client.model.Mail;
+import it.unito.brunasmail.MainApp;
+import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
@@ -17,13 +17,12 @@ public class RootLayoutController {
     @FXML
     private void handleNew(){
         mainApp.showSendMailDialog(
-                new Mail(-1,
+                new Mail(
                         mainApp.getUserMail(),
                         "",
                         null,
                         0L,
-                        "",
-                        false
+                        ""
                 ),
                 "Send New Email");
     }
