@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,13 +16,12 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Mail implements Serializable, Cloneable {
-    private transient final StringProperty sender;
-    private transient final StringProperty subject;
-    private transient final ListProperty<String> receivers;
-    private transient final ObjectProperty<LocalDateTime> date;
-    private transient final StringProperty message;
-
+public class Mail implements Serializable {
+    private transient StringProperty sender;
+    private transient StringProperty subject;
+    private transient ListProperty<String> receivers;
+    private transient ObjectProperty<LocalDateTime> date;
+    private transient StringProperty message;
     // private Boolean viewed;
 
     public Mail(String sender, String subject, String receivers, long timestamp, String message) {
@@ -34,6 +32,10 @@ public class Mail implements Serializable, Cloneable {
         this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), TimeZone.getDefault().toZoneId()));
         this.message = new SimpleStringProperty(message);
         //this.viewed = viewed;
+    }
+
+    public Mail(){
+        init();
     }
 
     public String getSender() {
@@ -47,6 +49,7 @@ public class Mail implements Serializable, Cloneable {
     public void setSender(String sender) {
         this.sender.set(sender);
     }
+
 
     public String getSubject() {
         return subject.get();
@@ -96,7 +99,6 @@ public class Mail implements Serializable, Cloneable {
         return receiversStringProperty().get();
     }
 
-
     public LocalDateTime getDate() {
         return date.get();
     }
@@ -125,9 +127,13 @@ public class Mail implements Serializable, Cloneable {
         this.message.set(message);
     }
 
-    /*public Boolean getViewed() {
-        return viewed;
-    }*/
+    private void init(){
+        this.sender = new SimpleStringProperty();
+        this.subject = new SimpleStringProperty();
+        this.receivers = new SimpleListProperty<String>();
+        this.date = new SimpleObjectProperty<>();
+        this.message = new SimpleStringProperty();
+    }
 
     private void writeObject(ObjectOutputStream s)throws IOException {
         long millis = getDate().atZone(TimeZone.getDefault().toZoneId()).toInstant().toEpochMilli();
@@ -140,9 +146,11 @@ public class Mail implements Serializable, Cloneable {
     }
 
     private void readObject(ObjectInputStream s)throws IOException, ClassNotFoundException{
+        init();
         setSender(s.readUTF());
         setSubject(s.readUTF());
         setReceivers(s.readUTF());
+        //System.out.println("Local date Time"+LocalDateTime.ofInstant(Instant.ofEpochMilli(s.readLong()),TimeZone.getDefault().toZoneId()));
         setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(s.readLong()),TimeZone.getDefault().toZoneId()));
         setMessage(s.readUTF());
     }
