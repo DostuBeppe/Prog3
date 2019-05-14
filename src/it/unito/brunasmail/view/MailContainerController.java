@@ -175,6 +175,4 @@ public class MailContainerController {
             bodyTextArea.setText("Seleziona Un Messaggio");
         }
     }
-
-
 }

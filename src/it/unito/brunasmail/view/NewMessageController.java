@@ -27,6 +27,7 @@ public class NewMessageController {
 
     public void setMail(Mail mail){
         this.mail = mail;
+
         if(mail!=null){
             receiversField.setText(this.mail.getReceiversString());
             subjectField.setText(this.mail.getSubject());
