@@ -25,6 +25,7 @@ import java.util.Scanner;
 
 public class MainApp extends Application {
     private Stage primaryStage;
+    private Stage dialogStage;
     private BorderPane rootLayout;
 
     private ObservableList<Mail> inbox = FXCollections.observableArrayList();
@@ -134,7 +135,7 @@ public class MainApp extends Application {
     public void connectToServer() {
 
         try {
-            Socket s = new Socket("192.168.1.6", 8189);
+            Socket s = new Socket("localhost", 8189);
 
             System.out.println("Ho aperto il socket verso il server");
 
@@ -169,21 +170,15 @@ public class MainApp extends Application {
         }
     }
 
-    public void requestMail() {
+    public boolean requestInbox() {
+        boolean request = false;
         try {
-            Socket s = new Socket("192.168.137.1", 8189);
+            Socket s = new Socket("localhost", 8189);
 
             System.out.println("Socket opened");
 
             try {
-                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(s.getInputStream());
-                System.out.println("Receiving data from server!");
-                out.writeObject("out");
-                out.writeObject(userMail);
-                List<Mail> res = (List<Mail>) in.readObject();
-                in.close();
-                out.close();
+                request = isRequest(request, s, "in", inbox);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
@@ -192,6 +187,43 @@ public class MainApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return request;
+    }
+
+    public boolean requestOutbox() {
+        boolean request = false;
+        try {
+            Socket s = new Socket("localhost", 8189);
+
+            System.out.println("Socket opened");
+
+            try {
+                request = isRequest(request, s, "out", outbox);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return request;
+    }
+
+    private boolean isRequest(boolean request, Socket s, String in2, ObservableList<Mail> inbox) throws IOException, ClassNotFoundException {
+        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+        System.out.println("Receiving data from server!");
+        out.writeObject(in2);
+        out.writeObject(userMail);
+        List<Mail> resIn = (List<Mail>) in.readObject();
+        in.close();
+        out.close();
+        if (resIn!=null){
+            inbox.addAll(resIn);
+            request = true;
+        }
+        return request;
     }
 
     public void showLoginDialog() {
@@ -200,8 +232,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("view/Login.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
 
-
-            Stage dialogStage = new Stage();
+            dialogStage = new Stage();
             dialogStage.setTitle("Login");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);

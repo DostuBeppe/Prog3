@@ -27,9 +27,18 @@ public class LoginController {
     private void handleLogin(){
         if(usernameField.getText().length()>0 && usernameField != null){
             mainApp.setUserMail(usernameField.getText());
-            new Thread(mainApp::requestMail).start();
-            stage.close();
-        } else if (usernameField == null){
+            boolean succesfulLogin = mainApp.requestInbox() && mainApp.requestOutbox();
+            if (succesfulLogin){
+                stage.close();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.initOwner(stage);
+                alert.setTitle("Error");
+                alert.setHeaderText("Error:");
+                alert.setContentText("Cannot login");
+                alert.showAndWait();
+            }
+        } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.initOwner(stage);
             alert.setTitle("Error");
@@ -37,6 +46,11 @@ public class LoginController {
             alert.setContentText("Email not valid!");
             alert.showAndWait();
         }
+    }
+
+    @FXML
+    public void closeStage(){
+        stage.close();
     }
 
 }
