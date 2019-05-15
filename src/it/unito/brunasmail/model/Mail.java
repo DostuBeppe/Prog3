@@ -1,9 +1,7 @@
 package it.unito.brunasmail.model;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,7 +10,9 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +29,7 @@ public class Mail implements Serializable {
         this.subject = new SimpleStringProperty(subject);
         this.receivers= new SimpleListProperty<>();
         if (receivers != null) setReceivers(receivers);
-        this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), TimeZone.getDefault().toZoneId()));
+        this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId()));
         this.message = new SimpleStringProperty(message);
         //this.viewed = viewed;
     }
@@ -89,7 +89,6 @@ public class Mail implements Serializable {
         }
         StringBuilder str = new StringBuilder();
         for (String s : receivers) {
-            System.out.println("Dest: " + s);
             str.append(s).append("; ");
         }
         return new SimpleStringProperty(str.toString());
@@ -108,7 +107,7 @@ public class Mail implements Serializable {
     }
 
     public String getFormattedDate() {
-        return date.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm"));
+        return date.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
     }
 
     public void setDate(LocalDateTime date) {
@@ -136,6 +135,7 @@ public class Mail implements Serializable {
     }
 
     private void writeObject(ObjectOutputStream s)throws IOException {
+        //init();
         long millis = getDate().atZone(TimeZone.getDefault().toZoneId()).toInstant().toEpochMilli();
         s.defaultWriteObject();
         s.writeUTF(getSender());
@@ -150,9 +150,13 @@ public class Mail implements Serializable {
         setSender(s.readUTF());
         setSubject(s.readUTF());
         setReceivers(s.readUTF());
-        //System.out.println("Local date Time"+LocalDateTime.ofInstant(Instant.ofEpochMilli(s.readLong()),TimeZone.getDefault().toZoneId()));
         setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(s.readLong()),TimeZone.getDefault().toZoneId()));
         setMessage(s.readUTF());
+    }
+
+    @Override
+    public String toString() {
+        return "sender: " + sender + ";\nsubject: " + subject + ";\nreceivers: " + receivers + ";\ndate:" + getFormattedDate() + ";\nmessage:\n" + message;
     }
 
 }

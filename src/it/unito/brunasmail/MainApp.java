@@ -19,12 +19,12 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class MainApp extends Application {
     private Stage primaryStage;
+    private Stage dialogStage;
     private BorderPane rootLayout;
 
     private ObservableList<Mail> inbox = FXCollections.observableArrayList();
@@ -59,9 +59,9 @@ public class MainApp extends Application {
 
         showMailContainer();
         showLoginDialog();
-        new Thread(this::connectToServer).start();
-    }
 
+        new Thread(this::refresh).start();
+    }
 
     /**
      * Initializes the root layout.
@@ -121,6 +121,7 @@ public class MainApp extends Application {
             NewMessageController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setMail(mail);
+            controller.setMainApp(this);
 
             dialogStage.showAndWait();
             return controller.isOkClicked();
@@ -169,27 +170,31 @@ public class MainApp extends Application {
         }
     }
 
-    public void requestMail() {
+    public boolean requestMail() {
+        boolean request = false;
         try {
             Socket s = new Socket("192.168.137.1", 8189);
 
-            System.out.println("Ho aperto il socket verso il server");
+            System.out.println("Socket opened");
 
             try {
                 ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(s.getInputStream());
-                System.out.println("Sto per ricevere dati dal socket server!");
-                out.writeObject("out");
+                System.out.println("Receiving data from server!");
+                out.writeObject("receive");
                 out.writeObject(userMail);
-                List<Mail> res = (ArrayList<Mail>) in.readObject();
-                if (res != null) {
-                    for (Mail l : res) {
-                        System.out.println(l);
-                    }
-                }
+                List<Mail> resIn = (List<Mail>) in.readObject();
+                List<Mail> resOut = (List<Mail>) in.readObject();
                 in.close();
                 out.close();
-                inbox.addAll(res);
+                if (resIn!=null&&resOut!=null){
+                    inbox.clear();
+                    outbox.clear();
+                    inbox.addAll(resIn);
+                    outbox.addAll(resOut);
+                    request = true;
+                }
+                return request;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
@@ -198,6 +203,7 @@ public class MainApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return request;
     }
 
     public void showLoginDialog() {
@@ -206,8 +212,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("view/Login.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
 
-
-            Stage dialogStage = new Stage();
+            dialogStage = new Stage();
             dialogStage.setTitle("Login");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);
@@ -221,7 +226,7 @@ public class MainApp extends Application {
             });
 
             LoginController loginController = loader.getController();
-            loginController.setMainApp(this);
+            loginController.setMainApp(this, dialogStage);
 
 
             dialogStage.showAndWait();
@@ -232,7 +237,40 @@ public class MainApp extends Application {
 
     }
 
+    public static void sendMail(Mail mail, MainApp mainApp){
+        try {
+            Socket s = new Socket("192.168.137.1", 8189);
 
+            System.out.println("Socket opened");
+
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                //ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+                System.out.println("Receiving data from server!");
+                out.writeObject("send");
+                out.writeObject(mail);
+                System.out.println(mail.getSender());
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void refresh(){
+        while (true){
+            try {
+                Thread.sleep(5000);
+                new Thread(this::requestMail).start();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     /**
      * Returns the main stage.
      *
