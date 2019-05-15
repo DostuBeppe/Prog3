@@ -26,8 +26,8 @@ public class LoginController {
     @FXML
     private void handleLogin(){
         if(usernameField.getText().length()>0 && usernameField != null){
-            mainApp.setUserMail(usernameField.getText());
-            boolean succesfulLogin = mainApp.requestInbox() && mainApp.requestOutbox();
+            mainApp.setUserMail(usernameField.getText()+"@brunasmail.it");
+            boolean succesfulLogin = mainApp.requestMail();
             if (succesfulLogin){
                 stage.close();
             } else {

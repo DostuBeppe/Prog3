@@ -63,7 +63,6 @@ public class MainApp extends Application {
         new Thread(this::connectToServer).start();
     }
 
-
     /**
      * Initializes the root layout.
      */
@@ -170,7 +169,7 @@ public class MainApp extends Application {
         }
     }
 
-    public boolean requestInbox() {
+    public boolean requestMail() {
         boolean request = false;
         try {
             Socket s = new Socket("localhost", 8189);
@@ -178,7 +177,21 @@ public class MainApp extends Application {
             System.out.println("Socket opened");
 
             try {
-                request = isRequest(request, s, "in", inbox);
+                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+                System.out.println("Receiving data from server!");
+                out.writeObject("receive");
+                out.writeObject(userMail);
+                List<Mail> resIn = (List<Mail>) in.readObject();
+                List<Mail> resOut = (List<Mail>) in.readObject();
+                in.close();
+                out.close();
+                if (resIn!=null&&resOut!=null){
+                    inbox.addAll(resIn);
+                    outbox.addAll(resOut);
+                    request = true;
+                }
+                return request;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
@@ -186,42 +199,6 @@ public class MainApp extends Application {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return request;
-    }
-
-    public boolean requestOutbox() {
-        boolean request = false;
-        try {
-            Socket s = new Socket("localhost", 8189);
-
-            System.out.println("Socket opened");
-
-            try {
-                request = isRequest(request, s, "out", outbox);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } finally {
-                s.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return request;
-    }
-
-    private boolean isRequest(boolean request, Socket s, String in2, ObservableList<Mail> inbox) throws IOException, ClassNotFoundException {
-        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(s.getInputStream());
-        System.out.println("Receiving data from server!");
-        out.writeObject(in2);
-        out.writeObject(userMail);
-        List<Mail> resIn = (List<Mail>) in.readObject();
-        in.close();
-        out.close();
-        if (resIn!=null){
-            inbox.addAll(resIn);
-            request = true;
         }
         return request;
     }
@@ -257,6 +234,31 @@ public class MainApp extends Application {
 
     }
 
+    public static void sendMail(Mail mail){
+        try {
+            Socket s = new Socket("localhost", 8189);
+
+            System.out.println("Socket opened");
+
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                //ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+                System.out.println("Receiving data from server!");
+                out.writeObject("send");
+                out.writeObject(mail);
+                System.out.println(mail.getSender());
+                //String res = (String) in.readObject();
+                //in.close();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Returns the main stage.

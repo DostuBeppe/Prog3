@@ -1,5 +1,6 @@
 package it.unito.brunasmail.view;
 
+import it.unito.brunasmail.MainApp;
 import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -50,7 +51,8 @@ public class NewMessageController {
         mail.setMessage(messageBodyArea.getText());
         if(isInputValid(mail)){
             okClicked = true;
-            dialogStage.close();
+            Thread thread = new Thread(()->MainApp.sendMail(mail));
+            thread.start();
         }
     }
 
