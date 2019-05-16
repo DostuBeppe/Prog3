@@ -17,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
@@ -31,8 +32,13 @@ public class MainApp extends Application {
     private ObservableList<Mail> outbox = FXCollections.observableArrayList();
 
     private String userMail;
+    private static String userMailStatic;
 
     public MainApp() {
+    }
+
+    public static void setUserMailStatic(String userMailStatic) {
+        MainApp.userMailStatic = userMailStatic;
     }
 
     public void setUserMail(String userMail) {
@@ -132,48 +138,10 @@ public class MainApp extends Application {
         }
     }
 
-    public void connectToServer() {
-
-        try {
-            Socket s = new Socket("192.168.137.1", 8189);
-
-            System.out.println("Ho aperto il socket verso il server");
-
-            try {
-                InputStream inStream = s.getInputStream();
-                Scanner in = new Scanner(inStream);
-                OutputStream outStream = s.getOutputStream();
-                PrintWriter out = new PrintWriter(outStream, true /* autoFlush */);
-                Scanner stin = new Scanner(System.in);
-
-                System.out.println("Sto per ricevere dati dal socket server!");
-
-                String line = in.nextLine(); // attenzione: se il server non scrive nulla questo resta in attesa...
-                System.out.println(line);
-
-                boolean done = false;
-                while (!done) /* && in.hasNextLine()) */ {
-
-                    String lineout = stin.nextLine();
-                    out.println(lineout);
-
-                    line = in.nextLine();
-                    System.out.println(line);
-                    if (lineout.equals("BYE"))
-                        done = true;
-                }
-            } finally {
-                s.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public boolean requestMail() {
         boolean request = false;
         try {
-            Socket s = new Socket("192.168.137.1", 8189);
+            Socket s = new Socket(/*"192.168.137.1"*/ "localhost", 8189);
 
             System.out.println("Socket opened");
 
@@ -187,7 +155,7 @@ public class MainApp extends Application {
                 List<Mail> resOut = (List<Mail>) in.readObject();
                 in.close();
                 out.close();
-                if (resIn!=null&&resOut!=null){
+                if (resIn != null && resOut != null) {
                     inbox.clear();
                     outbox.clear();
                     inbox.addAll(resIn);
@@ -237,9 +205,9 @@ public class MainApp extends Application {
 
     }
 
-    public static void sendMail(Mail mail){
+    public static void sendMail(Mail mail) {
         try {
-            Socket s = new Socket("192.168.137.1", 8189);
+            Socket s = new Socket(/*"192.168.137.1"*/ "localhost", 8189);
 
             System.out.println("Socket opened");
 
@@ -260,8 +228,34 @@ public class MainApp extends Application {
         }
     }
 
-    private void refresh(){
-        while (true){
+    public static void deleteMail(Mail mail) {
+        try {
+            Socket s = new Socket(/*"192.168.137.1"*/ "localhost", 8189);
+
+            System.out.println("Socket opened DELETE");
+
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                System.out.println("Receiving data from server!");
+                out.writeObject("delete");
+                System.out.println("DELETE");
+                out.writeObject(MainApp.userMailStatic);
+                System.out.println(userMailStatic);
+                out.writeObject(mail);
+                System.out.println(mail.getSender());
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void refresh() {
+        while (true) {
             try {
                 Thread.sleep(5000);
                 Platform.runLater(this::requestMail);
@@ -270,8 +264,10 @@ public class MainApp extends Application {
             }
         }
     }
+
     /**
      * Returns the main stage.
+     *
      *
      * @return
      */
