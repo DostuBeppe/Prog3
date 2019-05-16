@@ -54,7 +54,6 @@ public class NewMessageController {
             okClicked = true;
             Thread thread = new Thread(()->MainApp.sendMail(mail));
             thread.start();
-            //new Thread(this.mainApp::requestMail).start();
             dialogStage.close();
         }
 

@@ -31,8 +31,13 @@ public class MainApp extends Application {
     private ObservableList<Mail> outbox = FXCollections.observableArrayList();
 
     private String userMail;
+    private static String userMailStatic;
 
     public MainApp() {
+    }
+
+    public static void setUserMailStatic(String userMailStatic) {
+        MainApp.userMailStatic = userMailStatic;
     }
 
     public void setUserMail(String userMail) {
@@ -135,7 +140,7 @@ public class MainApp extends Application {
     public void connectToServer() {
 
         try {
-            Socket s = new Socket("localhost", 8189);
+            Socket s = new Socket("192.168.137.1", 8189);
 
             System.out.println("Ho aperto il socket verso il server");
 
@@ -173,7 +178,7 @@ public class MainApp extends Application {
     public boolean requestMail() {
         boolean request = false;
         try {
-            Socket s = new Socket("localhost", 8189);
+            Socket s = new Socket("192.168.137.1", 8189);
 
             System.out.println("Socket opened");
 
@@ -239,7 +244,7 @@ public class MainApp extends Application {
 
     public static void sendMail(Mail mail){
         try {
-            Socket s = new Socket("localhost", 8189);
+            Socket s = new Socket("192.168.137.1", 8189);
 
             System.out.println("Socket opened");
 
@@ -260,11 +265,35 @@ public class MainApp extends Application {
         }
     }
 
+    public static void deleteMail(Mail mail){
+        try {
+            Socket s = new Socket("192.168.137.1", 8189);
+
+            System.out.println("Socket opened");
+
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                System.out.println("Receiving data from server!");
+                out.writeObject("delete");
+                out.writeObject(MainApp.userMailStatic);
+                out.writeObject(mail);
+                System.out.println(mail.getSender());
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                s.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void refresh(){
         while (true){
             try {
                 Thread.sleep(5000);
-                requestMail();
+                Platform.runLater(this::requestMail);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

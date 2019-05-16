@@ -148,6 +148,11 @@ public class MailContainerController {
 
     }
 
+    @FXML
+    private void handleDelete() {
+        new Thread(()->MainApp.deleteMail(selectedMail));
+    }
+
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         // Add observable list data to the table
