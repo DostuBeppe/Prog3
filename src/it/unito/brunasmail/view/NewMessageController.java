@@ -52,9 +52,9 @@ public class NewMessageController {
         mail.setMessage(messageBodyArea.getText());
         if(isInputValid(mail)){
             okClicked = true;
-            Thread thread = new Thread(()->MainApp.sendMail(mail, this.mainApp));
+            Thread thread = new Thread(()->MainApp.sendMail(mail));
             thread.start();
-            new Thread(this.mainApp::requestMail).start();
+            //new Thread(this.mainApp::requestMail).start();
             dialogStage.close();
         }
 

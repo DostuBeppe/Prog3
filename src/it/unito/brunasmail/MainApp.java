@@ -135,7 +135,7 @@ public class MainApp extends Application {
     public void connectToServer() {
 
         try {
-            Socket s = new Socket("192.168.137.1", 8189);
+            Socket s = new Socket("localhost", 8189);
 
             System.out.println("Ho aperto il socket verso il server");
 
@@ -173,7 +173,7 @@ public class MainApp extends Application {
     public boolean requestMail() {
         boolean request = false;
         try {
-            Socket s = new Socket("192.168.137.1", 8189);
+            Socket s = new Socket("localhost", 8189);
 
             System.out.println("Socket opened");
 
@@ -237,15 +237,14 @@ public class MainApp extends Application {
 
     }
 
-    public static void sendMail(Mail mail, MainApp mainApp){
+    public static void sendMail(Mail mail){
         try {
-            Socket s = new Socket("192.168.137.1", 8189);
+            Socket s = new Socket("localhost", 8189);
 
             System.out.println("Socket opened");
 
             try {
                 ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                //ObjectInputStream in = new ObjectInputStream(s.getInputStream());
                 System.out.println("Receiving data from server!");
                 out.writeObject("send");
                 out.writeObject(mail);
@@ -265,7 +264,7 @@ public class MainApp extends Application {
         while (true){
             try {
                 Thread.sleep(5000);
-                new Thread(this::requestMail).start();
+                requestMail();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
