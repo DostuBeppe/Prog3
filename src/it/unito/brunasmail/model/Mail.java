@@ -126,6 +126,7 @@ public class Mail implements Serializable {
         this.message.set(message);
     }
 
+
     private void init(){
         this.sender = new SimpleStringProperty();
         this.subject = new SimpleStringProperty();

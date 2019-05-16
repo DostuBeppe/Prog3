@@ -135,7 +135,7 @@ public class MainApp extends Application {
     public void connectToServer() {
 
         try {
-            Socket s = new Socket("localhost", 8189);
+            Socket s = new Socket("192.168.137.1", 8189);
 
             System.out.println("Ho aperto il socket verso il server");
 
@@ -173,7 +173,7 @@ public class MainApp extends Application {
     public boolean requestMail() {
         boolean request = false;
         try {
-            Socket s = new Socket("localhost", 8189);
+            Socket s = new Socket("192.168.137.1", 8189);
 
             System.out.println("Socket opened");
 
@@ -239,7 +239,7 @@ public class MainApp extends Application {
 
     public static void sendMail(Mail mail){
         try {
-            Socket s = new Socket("localhost", 8189);
+            Socket s = new Socket("192.168.137.1", 8189);
 
             System.out.println("Socket opened");
 
@@ -264,7 +264,7 @@ public class MainApp extends Application {
         while (true){
             try {
                 Thread.sleep(5000);
-                requestMail();
+                Platform.runLater(this::requestMail);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

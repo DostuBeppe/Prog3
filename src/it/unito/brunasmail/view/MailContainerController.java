@@ -64,7 +64,7 @@ public class MailContainerController {
                 if (empty)
                     setText(null);
                 else
-                    setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm")));
+                    setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")));
             }
         });
     }
