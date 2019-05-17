@@ -1,4 +1,4 @@
-package it.unito.brunasmail.client.model;
+package it.unito.brunasmail.model;
 
 import java.io.Serializable;
 import java.util.List;

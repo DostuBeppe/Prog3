@@ -1,20 +1,12 @@
-package it.unito.brunasmail.client.view;
+package it.unito.brunasmail.view;
 
-import it.unito.brunasmail.client.MainApp;
-import it.unito.brunasmail.client.model.Mail;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import it.unito.brunasmail.MainApp;
+import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.util.Callback;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Set;
 
 public class MailContainerController {
     @FXML
@@ -72,7 +64,7 @@ public class MailContainerController {
                 if (empty)
                     setText(null);
                 else
-                    setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm")));
+                    setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")));
             }
         });
     }
@@ -156,6 +148,11 @@ public class MailContainerController {
 
     }
 
+    @FXML
+    private void handleDelete() {
+        new Thread(()->MainApp.deleteMail(selectedMail)).start();
+    }
+
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         // Add observable list data to the table
@@ -183,6 +180,4 @@ public class MailContainerController {
             bodyTextArea.setText("Seleziona Un Messaggio");
         }
     }
-
-
 }

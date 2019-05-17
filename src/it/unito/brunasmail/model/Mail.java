@@ -1,34 +1,43 @@
-package it.unito.brunasmail.client.model;
+package it.unito.brunasmail.model;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Mail implements Serializable {
-    private transient final StringProperty sender;
-    private transient final StringProperty subject;
-    private transient final ListProperty<String> receivers;
-    private transient final ObjectProperty<LocalDateTime> date;
-    private transient final StringProperty message;
-    // private Boolean viewed;
+    private transient StringProperty sender;
+    private transient StringProperty subject;
+    private transient ListProperty<String> receivers;
+    private transient ObjectProperty<LocalDateTime> date;
+    private transient StringProperty message;
+    private transient BooleanProperty sent;
 
     public Mail(String sender, String subject, String receivers, long timestamp, String message) {
         this.sender = new SimpleStringProperty(sender);
         this.subject = new SimpleStringProperty(subject);
-        this.receivers= new SimpleListProperty<>();
+        this.receivers = new SimpleListProperty<>();
         if (receivers != null) setReceivers(receivers);
-        this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), TimeZone.getDefault().toZoneId()));
+        this.date = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId()));
         this.message = new SimpleStringProperty(message);
-        //this.viewed = viewed;
+        this.sent = new SimpleBooleanProperty(false);
+    }
+
+    public Mail() {
+        init();
     }
 
     public String getSender() {
@@ -42,6 +51,7 @@ public class Mail implements Serializable {
     public void setSender(String sender) {
         this.sender.set(sender);
     }
+
 
     public String getSubject() {
         return subject.get();
@@ -81,7 +91,6 @@ public class Mail implements Serializable {
         }
         StringBuilder str = new StringBuilder();
         for (String s : receivers) {
-            System.out.println("Dest: " + s);
             str.append(s).append("; ");
         }
         return new SimpleStringProperty(str.toString());
@@ -90,7 +99,6 @@ public class Mail implements Serializable {
     public String getReceiversString() {
         return receiversStringProperty().get();
     }
-
 
     public LocalDateTime getDate() {
         return date.get();
@@ -101,7 +109,7 @@ public class Mail implements Serializable {
     }
 
     public String getFormattedDate() {
-        return date.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm"));
+        return date.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
     }
 
     public void setDate(LocalDateTime date) {
@@ -120,9 +128,55 @@ public class Mail implements Serializable {
         this.message.set(message);
     }
 
-    /*public Boolean getViewed() {
-        return viewed;
-    }*/
+    public long getMillis() {
+        return getDate().atZone(TimeZone.getDefault().toZoneId()).toInstant().toEpochMilli();
+    }
 
+    public boolean isSent() {
+        return sent.get();
+    }
+
+    public BooleanProperty sentProperty() {
+        return sent;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent.set(sent);
+    }
+
+    private void init() {
+        this.sender = new SimpleStringProperty();
+        this.subject = new SimpleStringProperty();
+        this.receivers = new SimpleListProperty<String>();
+        this.date = new SimpleObjectProperty<>();
+        this.message = new SimpleStringProperty();
+        this.sent = new SimpleBooleanProperty();
+    }
+
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        long millis = getDate().atZone(TimeZone.getDefault().toZoneId()).toInstant().toEpochMilli();
+        s.defaultWriteObject();
+        s.writeUTF(getSender());
+        s.writeUTF(getSubject());
+        s.writeUTF(getReceiversString());
+        s.writeLong(millis);
+        s.writeUTF(getMessage());
+        s.writeBoolean(isSent());
+    }
+
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        init();
+        setSender(s.readUTF());
+        setSubject(s.readUTF());
+        setReceivers(s.readUTF());
+        setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(s.readLong()), TimeZone.getDefault().toZoneId()));
+        setMessage(s.readUTF());
+        setSent(s.readBoolean());
+    }
+
+    @Override
+    public String toString() {
+        return "sender: " + sender + ";\nsubject: " + subject + ";\nreceivers: " + receivers + ";\ndate:" + getFormattedDate() + ";\nmessage:\n" + message;
+    }
 
 }
