@@ -141,7 +141,8 @@ public class MainApp extends Application {
     public boolean requestMail() {
         boolean request = false;
         try {
-            Socket s = new Socket(/*"192.168.137.1"*/ "localhost", 8189);
+            //Socket s = new Socket("192.168.137.1" , 8189);
+            Socket s = new Socket("localhost" , 8189);
 
             System.out.println("Socket opened");
 
@@ -207,7 +208,8 @@ public class MainApp extends Application {
 
     public static void sendMail(Mail mail) {
         try {
-            Socket s = new Socket(/*"192.168.137.1"*/ "localhost", 8189);
+            //Socket s = new Socket("192.168.137.1" , 8189);
+           Socket s = new Socket("localhost" , 8189);
 
             System.out.println("Socket opened");
 
@@ -230,7 +232,8 @@ public class MainApp extends Application {
 
     public static void deleteMail(Mail mail) {
         try {
-            Socket s = new Socket(/*"192.168.137.1"*/ "localhost", 8189);
+            //Socket s = new Socket("192.168.137.1" , 8189);
+            Socket s = new Socket("localhost" , 8189);
 
             System.out.println("Socket opened DELETE");
 
