@@ -18,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import sun.nio.ch.ThreadPool;
 
 import java.io.*;
 import java.net.Socket;
@@ -35,7 +36,7 @@ public class MainApp extends Application {
     private String userMail = "";
     private ClientHandler clientHandler;
 
-    public ClientHandler getClientHandler(){
+    public ClientHandler getClientHandler() {
         return clientHandler;
     }
 
@@ -51,17 +52,24 @@ public class MainApp extends Application {
         return inbox;
     }
 
-    public ObservableList<Mail> getOutbox() { return outbox; }
+    public ObservableList<Mail> getOutbox() {
+        return outbox;
+    }
 
-    public void addInbox(List<Mail> in){
+    public void addInbox(List<Mail> in) {
         inbox.addAll(in);
     }
-    public void addOutbox(List<Mail> out){
+
+    public void addOutbox(List<Mail> out) {
         outbox.addAll(out);
     }
-    public void addOutbox(Mail out){ outbox.add(out); }
-    public void delete(Mail mail){
-        if(mail.isSent()){
+
+    public void addOutbox(Mail out) {
+        outbox.add(out);
+    }
+
+    public void delete(Mail mail) {
+        if (mail.isSent()) {
             outbox.remove(mail);
         } else {
             inbox.remove(mail);
@@ -81,7 +89,10 @@ public class MainApp extends Application {
         showMailContainer();
         showLoginDialog();
 
-        new Thread(this::refresh).start();
+
+        Thread refresh = new Thread(this::refresh);
+        refresh.setDaemon(true);
+        refresh.start();
     }
 
     /**
@@ -95,13 +106,10 @@ public class MainApp extends Application {
             rootLayout = (BorderPane) loader.load();
             RootLayoutController controller = loader.getController();
             controller.setMainApp(this);
-
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
             primaryStage.show();
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -153,18 +161,17 @@ public class MainApp extends Application {
         }
     }
 
-    public void showNewMailPopup(int mail){
+    public void showNewMailPopup(int mail) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.initOwner(primaryStage);
         alert.setTitle("Hooray");
-        if(mail>1){
+        if (mail > 1) {
             alert.setContentText("You received " + mail + " new messages");
         } else {
             alert.setContentText("You received a new message");
         }
         alert.showAndWait();
     }
-
 
 
     private void showLoginDialog() {
@@ -183,6 +190,7 @@ public class MainApp extends Application {
                 @Override
                 public void handle(WindowEvent event) {
                     Platform.exit();
+
                 }
             });
             LoginController loginController = loader.getController();
@@ -196,13 +204,11 @@ public class MainApp extends Application {
     }
 
 
-
     private void refresh() {
         while (true) {
-
             try {
                 Thread.sleep(5000);
-                if(userMail.length()>0) {
+                if (userMail.length() > 0) {
                     Platform.runLater(clientHandler::requestInbox);
                 }
             } catch (InterruptedException e) {
@@ -214,6 +220,7 @@ public class MainApp extends Application {
     public Stage getPrimaryStage() {
         return primaryStage;
     }
+
     public static void main(String[] args) {
         launch(args);
     }
