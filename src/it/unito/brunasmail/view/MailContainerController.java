@@ -1,5 +1,6 @@
 package it.unito.brunasmail.view;
 
+import it.unito.brunasmail.ClientHandler;
 import it.unito.brunasmail.MainApp;
 import it.unito.brunasmail.model.Mail;
 import javafx.fxml.FXML;
@@ -150,7 +151,7 @@ public class MailContainerController {
 
     @FXML
     private void handleDelete() {
-        new Thread(()->MainApp.deleteMail(selectedMail)).start();
+        new Thread(()-> ClientHandler.deleteMail(selectedMail, mainApp)).start();
     }
 
     public void setMainApp(MainApp mainApp) {

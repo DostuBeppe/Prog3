@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
@@ -31,14 +32,15 @@ public class MainApp extends Application {
     private ObservableList<Mail> inbox = FXCollections.observableArrayList();
     private ObservableList<Mail> outbox = FXCollections.observableArrayList();
 
-    private String userMail;
-    private static String userMailStatic;
+    private String userMail = "";
+    private ClientHandler clientHandler;
 
-    public MainApp() {
+    public ClientHandler getClientHandler(){
+        return clientHandler;
     }
 
-    public static void setUserMailStatic(String userMailStatic) {
-        MainApp.userMailStatic = userMailStatic;
+    public MainApp() {
+        clientHandler = new ClientHandler(this);
     }
 
     public void setUserMail(String userMail) {
@@ -49,8 +51,21 @@ public class MainApp extends Application {
         return inbox;
     }
 
-    public ObservableList<Mail> getOutbox() {
-        return outbox;
+    public ObservableList<Mail> getOutbox() { return outbox; }
+
+    public void addInbox(List<Mail> in){
+        inbox.addAll(in);
+    }
+    public void addOutbox(List<Mail> out){
+        outbox.addAll(out);
+    }
+    public void addOutbox(Mail out){ outbox.add(out); }
+    public void delete(Mail mail){
+        if(mail.isSent()){
+            outbox.remove(mail);
+        } else {
+            inbox.remove(mail);
+        }
     }
 
     public String getUserMail() {
@@ -138,44 +153,21 @@ public class MainApp extends Application {
         }
     }
 
-    public boolean requestMail() {
-        boolean request = false;
-        try {
-            //Socket s = new Socket("192.168.137.1" , 8189);
-            Socket s = new Socket("localhost" , 8189);
-
-            System.out.println("Socket opened");
-
-            try {
-                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(s.getInputStream());
-                System.out.println("Receiving data from server!");
-                out.writeObject("receive");
-                out.writeObject(userMail);
-                List<Mail> resIn = (List<Mail>) in.readObject();
-                List<Mail> resOut = (List<Mail>) in.readObject();
-                in.close();
-                out.close();
-                if (resIn != null && resOut != null) {
-                    inbox.clear();
-                    outbox.clear();
-                    inbox.addAll(resIn);
-                    outbox.addAll(resOut);
-                    request = true;
-                }
-                return request;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } finally {
-                s.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void showNewMailPopup(int mail){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.initOwner(primaryStage);
+        alert.setTitle("Hooray");
+        if(mail>1){
+            alert.setContentText("You received " + mail + " new messages");
+        } else {
+            alert.setContentText("You received a new message");
         }
-        return request;
+        alert.showAndWait();
     }
 
-    public void showLoginDialog() {
+
+
+    private void showLoginDialog() {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/Login.fxml"));
@@ -193,7 +185,6 @@ public class MainApp extends Application {
                     Platform.exit();
                 }
             });
-
             LoginController loginController = loader.getController();
             loginController.setMainApp(this, dialogStage);
 
@@ -202,82 +193,27 @@ public class MainApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
-    public static void sendMail(Mail mail) {
-        try {
-            //Socket s = new Socket("192.168.137.1" , 8189);
-           Socket s = new Socket("localhost" , 8189);
 
-            System.out.println("Socket opened");
-
-            try {
-                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                System.out.println("Receiving data from server!");
-                out.writeObject("send");
-                out.writeObject(mail);
-                System.out.println(mail.getSender());
-                out.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                s.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void deleteMail(Mail mail) {
-        try {
-            //Socket s = new Socket("192.168.137.1" , 8189);
-            Socket s = new Socket("localhost" , 8189);
-
-            System.out.println("Socket opened DELETE");
-
-            try {
-                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                System.out.println("Receiving data from server!");
-                out.writeObject("delete");
-                System.out.println("DELETE");
-                out.writeObject(MainApp.userMailStatic);
-                System.out.println(userMailStatic);
-                out.writeObject(mail);
-                System.out.println(mail.getSender());
-                out.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                s.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void refresh() {
         while (true) {
+
             try {
                 Thread.sleep(5000);
-                Platform.runLater(this::requestMail);
+                if(userMail.length()>0) {
+                    Platform.runLater(clientHandler::requestInbox);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    /**
-     * Returns the main stage.
-     *
-     *
-     * @return
-     */
     public Stage getPrimaryStage() {
         return primaryStage;
     }
-
     public static void main(String[] args) {
         launch(args);
     }

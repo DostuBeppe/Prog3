@@ -27,9 +27,8 @@ public class LoginController {
     private void handleLogin(){
         if(usernameField.getText().length()>0 && usernameField != null){
             mainApp.setUserMail(usernameField.getText()+"@brunasmail.it");
-            mainApp.setUserMailStatic(usernameField.getText()+"@brunasmail.it");
-            boolean succesfulLogin = mainApp.requestMail();
-            if (succesfulLogin){
+            boolean successfulLogin = mainApp.getClientHandler().requestAll();
+            if (successfulLogin){
                 stage.close();
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
