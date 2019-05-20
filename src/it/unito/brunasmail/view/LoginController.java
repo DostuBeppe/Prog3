@@ -1,6 +1,7 @@
 package it.unito.brunasmail.view;
 
 import it.unito.brunasmail.MainApp;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
@@ -35,8 +36,9 @@ public class LoginController {
                 alert.initOwner(stage);
                 alert.setTitle("Error");
                 alert.setHeaderText("Error:");
-                alert.setContentText("Cannot login");
+                alert.setContentText("Cannot login, server offline, try again later");
                 alert.showAndWait();
+                Platform.exit();
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);

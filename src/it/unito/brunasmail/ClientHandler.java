@@ -13,7 +13,7 @@ import java.util.List;
 public class ClientHandler {
     private MainApp mainApp;
 
-    private static final String host = "localhost";
+    private static final String host = "192.168.137.1";
 
     public ClientHandler(MainApp mainApp){
         this.mainApp = mainApp;
@@ -78,9 +78,11 @@ public class ClientHandler {
                 }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
+                return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         return true;
     }

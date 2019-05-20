@@ -84,11 +84,10 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Brunas Mail");
-        initRootLayout();
 
-        showMailContainer();
         showLoginDialog();
-
+        initRootLayout();
+        showMailContainer();
 
         Thread refresh = new Thread(this::refresh);
         refresh.setDaemon(true);
