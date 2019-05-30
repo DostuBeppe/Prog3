@@ -14,6 +14,7 @@ public class RootLayoutController {
         this.mainApp = mainApp;
         addressLabel.setText(mainApp.getUserMail());
     }
+
     @FXML
     private void handleNew(){
         mainApp.showSendMailDialog(

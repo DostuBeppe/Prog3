@@ -29,6 +29,10 @@ public class MainApp extends Application {
     private Stage primaryStage;
     private Stage dialogStage;
     private BorderPane rootLayout;
+    private boolean mailSent;
+
+    public boolean isMailSent() { return mailSent; }
+    public void setMailSent(boolean mailSent) { this.mailSent = mailSent;}
 
     private ObservableList<Mail> inbox = FXCollections.observableArrayList();
     private ObservableList<Mail> outbox = FXCollections.observableArrayList();
@@ -169,6 +173,14 @@ public class MainApp extends Application {
         } else {
             alert.setContentText("You received a new message");
         }
+        alert.showAndWait();
+    }
+
+    public void showErrorPopup() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initOwner(primaryStage);
+        alert.setTitle("Error Server");
+        alert.setContentText("Server Offline.\nPlease try again later.");
         alert.showAndWait();
     }
 

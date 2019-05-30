@@ -47,7 +47,7 @@ public class NewMessageController {
     }
 
     @FXML
-    private void handleOk(){
+    private void handleOk() throws InterruptedException {
         mail.setReceivers(receiversField.getText());
         mail.setSubject(subjectField.getText());
         mail.setMessage(messageBodyArea.getText());
@@ -55,7 +55,11 @@ public class NewMessageController {
             okClicked = true;
             Thread thread = new Thread(()-> ClientHandler.sendMail(mail, mainApp));
             thread.start();
-            dialogStage.close();
+            thread.join();
+            if(mainApp.isMailSent())
+                dialogStage.close();
+            else
+                mainApp.showErrorPopup();
         }
 
     }

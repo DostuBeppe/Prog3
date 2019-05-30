@@ -13,7 +13,8 @@ import java.util.List;
 public class ClientHandler {
     private MainApp mainApp;
 
-    private static final String host = "192.168.137.1";
+
+    private static final String host = "localhost";
 
     public ClientHandler(MainApp mainApp){
         this.mainApp = mainApp;
@@ -89,6 +90,7 @@ public class ClientHandler {
 
 
     public static void sendMail(Mail mail, MainApp mainApp) {
+        mainApp.setMailSent(false);
         try (Socket s = new Socket(host, 8189)) {
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(s.getInputStream());
@@ -98,9 +100,11 @@ public class ClientHandler {
             in.close();
             out.close();
             if (m!=null) {
+                mainApp.setMailSent(true);
                 Platform.runLater(()->mainApp.addOutbox(m));
             }
         } catch (Exception e) {
+
             e.printStackTrace();
         }
     }
