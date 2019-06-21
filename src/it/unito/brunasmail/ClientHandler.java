@@ -14,7 +14,7 @@ public class ClientHandler {
     private MainApp mainApp;
 
 
-    private static final String host = "localhost";
+    private static final String host = "192.168.137.1";
 
     public ClientHandler(MainApp mainApp){
         this.mainApp = mainApp;
@@ -46,7 +46,7 @@ public class ClientHandler {
                 if (resIn != null) {
                     if (resIn.size() > 0) {
                         mainApp.addInbox(resIn);
-                        mainApp.showNewMailPopup(resIn.size() - mainApp.getInbox().size());
+                        mainApp.showNewMailPopup(resIn.size());
                     }
                 }
             } catch (ClassNotFoundException e) {
