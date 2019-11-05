@@ -104,8 +104,7 @@ public class ClientHandler {
                 Platform.runLater(()->mainApp.addOutbox(m));
             }
         } catch (Exception e) {
-
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
